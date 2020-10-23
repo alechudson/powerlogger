@@ -4,6 +4,10 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include "RTClib.h"
+#include <Adafruit_INA260.h>
+#include <Fonts/FreeMono9pt7b.h>
+
+Adafruit_INA260 ina260 = Adafruit_INA260();
 
 const int chipSelect = 3;
 
@@ -11,13 +15,14 @@ RTC_DS3231 rtc;
 
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
-
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 #define OLED_RESET     LED_BUILTIN // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+
 
 void setup() {
   Serial.begin(9600);
@@ -47,11 +52,10 @@ void setup() {
   }
   Serial.println("card initialized.");
 
-
-
   //boot message
   display.clearDisplay();
   delay(100);
+
   display.setCursor(0,0);
   display.setTextColor(WHITE);
   display.setTextSize(1);
@@ -60,13 +64,20 @@ void setup() {
   delay(1000);
   display.println("This is a test");
   display.display();
+
+    if (!ina260.begin()) {
+    Serial.println("Couldn't find INA260 chip");
+    while (1);
+  }
+  Serial.println("Found INA260 chip");
+  
   delay(2000); // Pause for 2 seconds
 
 }
 
 void loop() {
-
-
+   DateTime now = rtc.now();
+    
 /////Writing the data to SD card
   // open the file. note that only one file can be open at a time,
   // so you have to close this one before opening another.
@@ -74,7 +85,13 @@ void loop() {
 
   // if the file is available, write to it:
   if (dataFile) {
-    dataFile.println("dataString");
+    dataFile.println("Current Time");
+    dataFile.print(now.hour(), DEC);
+    dataFile.print(':');
+    dataFile.print(now.minute(), DEC);
+    dataFile.print(':');
+    dataFile.print(now.second(), DEC);
+    dataFile.println();
     dataFile.close();
     // print to the serial port too:
     Serial.println("dataString");
@@ -84,9 +101,38 @@ void loop() {
     Serial.println("error opening datalog.txt");
   }
 
+/////Power Measurement
+  display.clearDisplay();
+  display.setCursor(0,10);
+  display.setTextColor(WHITE);
+  display.setTextSize(1);
+  display.setFont(&FreeMono9pt7b);
+  
+  display.print(ina260.readCurrent());
+  display.println(" mA");
+
+  display.print(ina260.readBusVoltage());
+  display.println(" mV");
+
+  display.print(ina260.readPower());
+  display.println(" mW");
+
+  display.display();
+  display.println();
+
+
+  Serial.print("Current: ");
+  Serial.print(ina260.readCurrent());
+  Serial.println(" mA");
+
+  Serial.print("Bus Voltage: ");
+  Serial.print(ina260.readBusVoltage());
+  Serial.println(" mV");
+  Serial.print("Power: ");
+  Serial.print(ina260.readPower());
+  Serial.println(" mW");
 
 /////RTC Time and temp
-    DateTime now = rtc.now();
 
     Serial.print(now.year(), DEC);
     Serial.print('/');
@@ -107,6 +153,6 @@ void loop() {
     Serial.print(rtc.getTemperature());
     Serial.println(" C");
 
-  delay(5000);
+  delay(2000);
   
 }
