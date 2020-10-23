@@ -161,6 +161,7 @@ void loop() {
     Serial.print("Temperature: ");
     Serial.print(rtc.getTemperature());
     Serial.println(" C");
+    Serial.println();
 
   delay(1000);
   
