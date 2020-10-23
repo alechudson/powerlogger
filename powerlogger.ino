@@ -59,7 +59,7 @@ void setup() {
   display.setCursor(0,0);
   display.setTextColor(WHITE);
   display.setTextSize(1);
-  display.println("Hello Word");
+  display.println("Alec Hudson");
   display.display();
   delay(1000);
   display.println("This is a test");
@@ -85,16 +85,25 @@ void loop() {
 
   // if the file is available, write to it:
   if (dataFile) {
-    dataFile.println("Current Time");
     dataFile.print(now.hour(), DEC);
     dataFile.print(':');
     dataFile.print(now.minute(), DEC);
     dataFile.print(':');
     dataFile.print(now.second(), DEC);
+    dataFile.print(", ");
+
+    dataFile.print(ina260.readCurrent());
+    dataFile.print(" mA");
+    dataFile.print(", ");
+    dataFile.print(ina260.readBusVoltage());
+    dataFile.print(" mV");
+    dataFile.print(", ");
+    dataFile.print(ina260.readPower());
+    dataFile.print(" mW");
+    
     dataFile.println();
     dataFile.close();
-    // print to the serial port too:
-    Serial.println("dataString");
+ 
   }
   // if the file isn't open, pop up an error:
   else {
@@ -153,6 +162,6 @@ void loop() {
     Serial.print(rtc.getTemperature());
     Serial.println(" C");
 
-  delay(2000);
+  delay(1000);
   
 }
