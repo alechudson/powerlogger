@@ -92,7 +92,7 @@ void loop() {
     dataFile.print(now.second(), DEC);
     dataFile.print(", ");
 
-    dataFile.print(ina260.readCurrent());
+    dataFile.print(ina260.readCurrent() + 3);
     dataFile.print(" mA");
     dataFile.print(", ");
     dataFile.print(ina260.readBusVoltage());
@@ -117,7 +117,7 @@ void loop() {
   display.setTextSize(1);
   display.setFont(&FreeMono9pt7b);
   
-  display.print(ina260.readCurrent());
+  display.print(ina260.readCurrent() + 3);
   display.println(" mA");
 
   display.print(ina260.readBusVoltage());
@@ -131,7 +131,7 @@ void loop() {
 
 
   Serial.print("Current: ");
-  Serial.print(ina260.readCurrent());
+  Serial.print(ina260.readCurrent() + 3);
   Serial.println(" mA");
 
   Serial.print("Bus Voltage: ");
